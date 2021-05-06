@@ -98,6 +98,15 @@ app.post('/delete', function(req, res){
              res.redirect('/');
          });
 });
+
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
+app.listen(port, function(){
+    console.log(`Server started on Port ${port}` );
+});
+
 app.listen(8000, function(){
     console.log('app is running on port 8000');
 });
