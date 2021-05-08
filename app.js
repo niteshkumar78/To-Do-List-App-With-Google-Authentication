@@ -252,11 +252,11 @@ app.post('/delete', function(req, res){
 });
 
 // connecting to HEROKU
-// let port = process.env.PORT;
-// if (port == null || port == "") {
-//   port = 8000;
-// }
-app.listen(process.env.PORT || 8000, function(){
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
+app.listen(port || 8000, function(){
     console.log(`Server started on Port ${port}` );
 });
 
