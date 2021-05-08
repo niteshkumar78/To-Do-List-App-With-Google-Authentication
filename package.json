@@ -10,7 +10,8 @@
   "author": "Nitesh Kumar",
   "license": "ISC",
   "engines": {
-    "node": "14.16.1"
+    "node": "14.16.1",
+    "npm": "6.14.12"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
