@@ -1,4 +1,4 @@
-<%- include("header")-%>
+<%- include("header2")-%>
 
     <div class="box" id="heading">
     <h1> <%= kindofDay %></h1>
@@ -6,18 +6,22 @@
 
     <div class="box" >
     
-    <% newListItems.forEach(function(item){%>
+    <% newListItems.list.forEach(function(item){%>
         <form action="/delete" method="POST">
         <div class="item">
-            <input type="checkbox" name="checkbox" value="<%= item._id%>" onChange="this.form.submit()">
-       <p><%=item.name %></p>
+            <input type="checkbox" name="checkbox" value="<%= item%>" onChange="this.form.submit()">
+       <p><%=item %></p>
     </div>   
 </form>
    <%});%>
-   <form class="item" action="/" method="POST">
+   <form class="item" action="/list" method="POST">
     <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
-     <button type="submit">+</button> 
+     <button class="list-button" type="submit">+</button> 
     </form>
+    
 </div>
-<%- include("footer")-%>
+<form class="logout" action="/logout" method="GET">
+    <button type="submit">LOGOUT</button>
+ </form>
+<%- include("footer2")-%>
     
