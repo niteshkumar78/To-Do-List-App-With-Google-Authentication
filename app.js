@@ -44,7 +44,7 @@ mongoose.set('useCreateIndex', true);
 // const Item= mongoose.model("Item", itemSchema);
 
 const userSchema= new mongoose.Schema({
-    email: String,
+    username: String,
     password: String,
     googleId: String,
     list: Array
@@ -133,7 +133,7 @@ app.get('/register', function(req, res){
 
 app.post('/register', function(req, res){
 
-    User.register({email: req.body.username}, req.body.password, function(err, user){
+    User.register({username: req.body.username}, req.body.password, function(err, user){
         if(err){
             console.log(err);
             res.redirect('register');
@@ -149,7 +149,7 @@ app.post('/register', function(req, res){
 app.post('/login', function(req, res){
 
     const user= new User({
-        email: req.body.username,
+        username: req.body.username,
         password: req.body.password
     });
 
