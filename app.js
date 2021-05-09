@@ -44,7 +44,7 @@ mongoose.set('useCreateIndex', true);
 // const Item= mongoose.model("Item", itemSchema);
 
 const userSchema= new mongoose.Schema({
-    username: String,
+    us: String,
     password: String,
     googleId: String,
     list: Array
@@ -75,7 +75,7 @@ passport.serializeUser(function(user, done) {
   },
   function(accessToken, refreshToken, profile, cb) {
       console.log(profile);
-    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+    User.findOrCreate({ username: profile.displayName, googleId: profile.id }, function (err, user) {
       return cb(err, user);
     });
   }
