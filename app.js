@@ -115,13 +115,13 @@ app.use(express.static("assets"));
 
 
 app.get('/', function(req, res){
-    // if(req.isAuthenticated()){
-    //     res.redirect('/list');
-    // } else{
-    //     res.render('home');
-    // }
+    if(req.isAuthenticated()){
+        res.redirect('/list');
+    } else{
+        res.render('home');
+    }
 
-    res.render('home');
+    // res.render('home');
     
 });
 
@@ -141,23 +141,23 @@ app.get('/auth/google',
   });
 
 app.get('/login', function(req, res){
-    // if(req.isAuthenticated()){
-    //     res.redirect('/list');
-    // } else{
-    //     res.render('login');
-    // }
-    res.render('login');
+    if(req.isAuthenticated()){
+        res.redirect('/list');
+    } else{
+        res.render('login');
+    }
+    // res.render('login');
    
 });
 
 
 app.get('/register', function(req, res){
-    // if(req.isAuthenticated()){
-    //     res.redirect('/list');
-    // } else{
-    //     res.render('register');
-    // }
-    res.render('register');
+    if(req.isAuthenticated()){
+        res.redirect('/list');
+    } else{
+        res.render('register');
+    }
+    // res.render('register');
 });
 
 app.post('/register', function(req, res){
