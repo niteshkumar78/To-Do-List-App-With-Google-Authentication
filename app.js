@@ -79,8 +79,14 @@ passport.serializeUser(function(user, done) {
   },
   function(accessToken, refreshToken, profile, cb) {
       console.log(profile);
-    User.findOrCreate({ username: profile.displayName, googleId: profile.id }, function (err, user) {
+    User.findOrCreate({  googleId: profile.id }, function (err, user) {
+        if(err){
+            console.log(err);
+            res.redirect('back');
+        }
+        else{
       return cb(err, user);
+        }
     });
   }
 ));
