@@ -44,7 +44,11 @@ mongoose.set('useCreateIndex', true);
 // const Item= mongoose.model("Item", itemSchema);
 
 const userSchema= new mongoose.Schema({
-    us: String,
+    username: {
+        type: String,
+        unique: false
+        }
+        ,
     password: String,
     googleId: String,
     list: Array
