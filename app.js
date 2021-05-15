@@ -17,7 +17,10 @@ const findOrCreate= require('mongoose-findorcreate');
 const mongoose= require('mongoose');
 
 app.use(express.urlencoded({extended:true}));
-
+const flash= require('connect-flash');                     //import for flash messages
+const nodemailer = require("nodemailer");
+const ejs = require('ejs');
+const path = require('path');
 app.set('view engine', 'ejs');
 
 app.use(session({
@@ -110,6 +113,74 @@ passport.serializeUser(function(user, done) {
 //     }
 // });
 
+//mailer
+
+
+const forgotSchema= new mongoose.Schema({
+    user: mongoose.Schema.Types.ObjectId,
+    acess_token: String,
+    is_valid: Boolean
+});
+
+const Forgot= mongoose.model('Forgot', forgotSchema);
+
+let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: 'niteshkumartg78@gmail.com',
+        pass: 'Kumar@123'
+    }
+});
+
+
+function renderTemplate(data, relativePath){
+    let mailHTML;
+    ejs.renderFile(
+        path.join(__dirname, './views/mailer', relativePath),
+        data,
+        function(err, template){
+         if (err){console.log('error in rendering template', err); return}
+         
+         mailHTML = template;
+        }
+    )
+
+    return mailHTML;
+}
+
+function newPassword(token, user){
+    let htmlString= renderTemplate({token: token, user :user[0]}, 'forgot_password/forgot_password.ejs');
+
+    console.log('username', user[0].name);
+    console.log(token); 
+    transporter.sendMail({
+        from:'niteshkumartg78@gmail.com',
+        to: user[0].username,
+        subject: "Forgot Password Link",
+        html: htmlString
+    }, (err, info)=> {
+        if(err){
+            console.log(`Error occured: ${err}`);
+            return;
+        }
+        console.log(`Message sent`, info);
+        return;
+
+    });
+}
+app.use(flash());                                    //use flash below session declared
+app.use(setFlash= function(req,res, next){                 //middleware to store flash message into locals
+    res.locals.flash= {
+        'success': req.flash('success'),
+        'error': req.flash('error')
+    }
+    next();
+}); 
+
+
 
 app.use(express.static("assets"));
 
@@ -185,9 +256,13 @@ app.post('/login', function(req, res){
     req.logIn(user, function(err){
         if(err){
             console.log(err);
+            req.flash('error', 'Error in login');
+
             res.redirect('login');
         } else{
             passport.authenticate("local")(req, res, function(){
+                req.flash('success', 'logged in sucessfully');
+
                 res.redirect('list');
             });
         }
@@ -198,6 +273,9 @@ app.post('/login', function(req, res){
 
 app.get('/logout', function(req, res){
     req.logOut();
+
+    req.flash('success', 'Password Reset Sucessfully!!, Please Login to Continue');
+
     res.redirect('/');
 });
 
@@ -242,7 +320,8 @@ app.post('/list', function(req, res){
                foundUser.list.push(newItem);
                foundUser.save();
         }
-    })
+    });
+    req.flash('success', 'Item Added sucessfully');
     res.redirect('back');
 });
 
@@ -276,22 +355,137 @@ app.post('/delete', function(req, res){
                  
                  foundUser.save();
              }
+             req.flash('success', 'Item deleted sucessfully');
              res.redirect('/list');
          });
 });
 
-// connecting to HEROKU
-let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 8000;
+
+function makeid(length) {
+    var result           = [];
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result.push(characters.charAt(Math.floor(Math.random() * 
+ charactersLength)));
+   }
+   return result.join('');
 }
-app.listen(port || 8000, function(){
-    console.log(`Server started on Port ${port}` );
+
+app.get('/forgotPassword', function(req, res){
+    return res.render('forgot_password_send', {
+        title: "Codeal Forgot Password"
+    });
 });
 
+app.post('/forgotPassword',function(req, res){
+    
+        User.find({username: req.body.email},function(err, user){
+            
+        if(err){
+            console.log(err);
+            return; 
+        }
+            console.log("user", user);
+            if(user.length>0){
+            console.log('user', user);
+             let randomString = makeid(20);
+             Forgot.create({
+                 user: user[0]._id,
+                 acess_token: randomString,
+                 is_Valid: true
+             });
+            newPassword(randomString, user);
+            req.flash('success', 'Password reset link send sucessfully');
+            console.log('sucessfully Sent mail');
+
+            }
+            else{
+                console.log('Invalid Email Id');
+
+                req.flash('error', 'Invalid Email Id !!');
+            }
+          
+        //   req.flash('success', 'Password reset link send sucessfully');
+          return res.redirect('back');
+        });
+        
+});
+
+app.get('/forgotPassword/reset',async function(req, res){
+    let token= req.query.acess_token;
+    let forgot= await Forgot.find({acess_token: token});
+    console.log("git new ", forgot[0])
+    if(forgot.length>0){
+    
+        return res.render('password_render', {
+            title: "password Reset Page",
+            user_id: forgot[0].user
+        });
+    }
+
+    else{
+        res.send('<h1>Invalid Link</h1>');
+    }
+});
+
+app.post('/forgotPassword/reset',async function(req, res){
+    try{
+        if(req.body.password==req.body.confirm_password){
+            console.log("hi ", req.body.user_id);
+        
+         User.findById(req.body.user_id,async function (err, user){
+           if(user){
+            user.setPassword( req.body.password, function(err, users){
+                if(err){
+                    console.log(err);
+                    return;
+                }
+                user= users;
+                user.save();
+                console.log(' password sucessfully changed', users);
+            });
+            
+    
+              
+                 await  Forgot.findOneAndRemove({user: user._id});
+                }
 
 
+                else{
+                    console.log('user not found');
 
-// app.listen(8000, function(){
-//     console.log('app is running on port 8000');
+                }
+                
+        // req.flash('success', 'Password Reset Sucessfully!!, Please Login to Continue');
+                 return res.render('login', {
+                    title: "Codeial | Sign In"
+                });
+            });
+           
+            } else {
+            // req.flash('error', 'Password and Confirm password not match!!!!');
+            return res.redirect('back');
+         }
+        
+        } catch(err){
+            console.log("error while reseting password", err);
+            return;
+        }
+});
+
+// connecting to HEROKU
+// let port = process.env.PORT;
+// if (port == null || port == "") {
+//   port = 8000;
+// }
+// app.listen(port || 8000, function(){
+//     console.log(`Server started on Port ${port}` );
 // });
+
+
+
+
+app.listen(8000, function(){
+    console.log('app is running on port 8000');
+});
