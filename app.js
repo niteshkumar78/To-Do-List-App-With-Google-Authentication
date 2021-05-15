@@ -208,6 +208,8 @@ app.get('/auth/google',
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect secrets page.
+    req.flash('success', 'logged in sucessfully');
+
     res.redirect('/list');
   });
 
@@ -475,17 +477,17 @@ app.post('/forgotPassword/reset',async function(req, res){
 });
 
 // connecting to HEROKU
-// let port = process.env.PORT;
-// if (port == null || port == "") {
-//   port = 8000;
-// }
-// app.listen(port || 8000, function(){
-//     console.log(`Server started on Port ${port}` );
-// });
-
-
-
-
-app.listen(8000, function(){
-    console.log('app is running on port 8000');
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
+app.listen(port || 8000, function(){
+    console.log(`Server started on Port ${port}` );
 });
+
+
+
+
+// app.listen(8000, function(){
+//     console.log('app is running on port 8000');
+// });
