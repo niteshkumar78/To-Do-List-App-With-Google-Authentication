@@ -27,6 +27,7 @@ h1 {
   min-height: 70px;
   display: flex;
   align-items: center;
+  /* flex-direction: row; */
   border-bottom: 1px solid #F1F1F1;
 }
 
@@ -112,4 +113,8 @@ footer {
   box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
   color: white;
 
+}
+.delete_item_button{
+margin: 20px;
+display: inline;
 }

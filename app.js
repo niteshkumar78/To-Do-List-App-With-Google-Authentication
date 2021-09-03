@@ -77,7 +77,7 @@ passport.serializeUser(function(user, done) {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://todolistnitesh.herokuapp.com/auth/google/todolist",
+    callbackURL: "http://localhost:8000/auth/google/todolist",
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
   },
   function(accessToken, refreshToken, profile, cb) {
@@ -294,7 +294,7 @@ app.get('/list', function(req, res){
             console.log(err);
         }
         else if(items){
-            console.log(items);
+            console.log('items ', items);
             res.render('list', {
                 kindofDay: "Today",
                 newListItems: items               
@@ -308,30 +308,42 @@ app.get('/list', function(req, res){
 });
 
 
-app.post('/list', function(req, res){
+app.post('/list',async function(req, res){
     var newItem= req.body.newItem;
     // const itemSave = new Item({
     //     name: newItem
     // });
     
     // itemSave.save();
-    User.findById(req.user.id, function(err, foundUser){
-        if(err){
-            console.log(err);
-        } else  if(foundUser){
+    try{
+   let foundUser= await User.findById(req.user.id);
+          if(foundUser){
                foundUser.list.push(newItem);
                foundUser.save();
-        }
-    });
+               if(req.xhr){
+                return res.status(200).json({
+                    data: {
+                        user: foundUser
+                    },
+                    message: "Item Added"
+                });
+            }
+               }
+        
+    
     req.flash('success', 'Item Added sucessfully');
     res.redirect('back');
+        } catch(err){
+            console.log('error while adding items',err);
+            return;
+        }
 });
 
 app.get('/about', function(req, res){
     res.render("about");
 });
 
-app.post('/delete', function(req, res){
+app.get('/delete', function(req, res){
      console.log(req.body);
      //method 1
     //  Item.deleteOne({_id: req.body.checkbox}, function(err){
@@ -350,12 +362,24 @@ app.post('/delete', function(req, res){
                  console.log(err);
              }
              else if(foundUser){
-                const index = foundUser.list.indexOf(req.body.checkbox);
+                const index = foundUser.list.indexOf(req.query.checkbox);
                 if (index > -1) {
                     foundUser.list.splice(index, 1);
                 }
                  
                  foundUser.save();
+                 if(req.xhr){
+                    return res.status(200).json({
+                        data: {
+                            user: foundUser,
+                            content: req.query.checkbox
+                        },
+                        message: "Item Delete"
+                    });
+                } else {
+                   console.log("Not found");
+                }
+
              }
              req.flash('success', 'Item deleted sucessfully');
              res.redirect('/list');
@@ -477,17 +501,17 @@ app.post('/forgotPassword/reset',async function(req, res){
 });
 
 // connecting to HEROKU
-let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 8000;
-}
-app.listen(port || 8000, function(){
-    console.log(`Server started on Port ${port}` );
-});
-
-
-
-
-// app.listen(8000, function(){
-//     console.log('app is running on port 8000');
+// let port = process.env.PORT;
+// if (port == null || port == "") {
+//   port = 8000;
+// }
+// app.listen(port || 8000, function(){
+//     console.log(`Server started on Port ${port}` );
 // });
+
+
+
+
+app.listen(8000, function(){
+    console.log('app is running on port 8000');
+});

@@ -3,18 +3,23 @@
     <div class="box" id="heading">
     <h1> <%= kindofDay %></h1>
     </div>
+    <div class="box" id="itemList" >
+        <ul>
+        <% newListItems.list.slice().reverse().forEach(function(item){%>
+            <li id='<%= item%>' style="list-style: none;">
+            <!-- <form action="/delete" class="delete_item_button" id='<%= item%>' method="POST"> -->
+            <div class="item" >
+                <!-- <input type="checkbox" name="checkbox" value="<%= item%>" onChange="this.form.submit()"> -->
+                <a  class="delete_item_button" href="/delete/?checkbox=<%= item%>">X</a>
+           <p><%=item %></p>
+        </div>  
+        
+    <!-- </form> -->
+    </li>
+       <%});%>
+    </ul>
 
-    <div class="box" >
-    
-    <% newListItems.list.forEach(function(item){%>
-        <form action="/delete" method="POST">
-        <div class="item">
-            <input type="checkbox" name="checkbox" value="<%= item%>" onChange="this.form.submit()">
-       <p><%=item %></p>
-    </div>   
-</form>
-   <%});%>
-   <form class="item" action="/list" method="POST">
+   <form id="item" action="/list" method="POST">
     <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
      <button class="list-button" type="submit">+</button> 
     </form>
@@ -24,5 +29,6 @@
 <form class="logout" action="/logout" method="GET">
     <button type="submit">LOGOUT</button>
  </form>
+ <script src="js/item_list.js"></script>
 <%- include("footer2")-%>
     
