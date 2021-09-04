@@ -35,7 +35,7 @@ app.use(passport.session());
 
 // const date= require(__dirname + '/date.js');
 
-mongoose.connect("mongodb+srv://admin-nitesh:Test@123@cluster0.af934.mongodb.net/todolistDB", { useNewUrlParser: true ,useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true ,useUnifiedTopology: true });
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
@@ -130,8 +130,8 @@ let transporter = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-        user: 'niteshkumartg78@gmail.com',
-        pass: 'Gokukumar@123'
+        user: process.env.SENDER_EMAIL,
+        pass: process.env.SENDER_PASSWORD
     }
 });
 
